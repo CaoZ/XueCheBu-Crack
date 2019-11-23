@@ -9,7 +9,7 @@ USER = ['驾校帐号', '密码']
 USER_INFO_CORRECT = True
 
 
-def get_unfinished_list(session):
+def get_unfinished_list(session, subject_no = 1):
     url = 'http://xcbapi.xuechebu.com/videoApi/video/GetChapterList?os=pc'
 
     unfinished = []
@@ -18,8 +18,10 @@ def get_unfinished_list(session):
         r = session.get(url)
         data = get_response_data(r)
 
-        subject = data[0]  # 科目1
-        # subject = data[1]  # 科目3
+        if subject_no == 1:   # 科目1
+            subject = data[0]
+        elif subject_no == 3: # 科目3
+            subject = data[1]  
         classes = subject['ClassList']
 
         for a_class in classes:
@@ -101,6 +103,17 @@ def login(session, username, password):
         print('登录失败: ' + str(e))
         return False
 
+def get_input_subject():
+    while True:
+        subject_no = input('选择学习科目1或者科目3(输入1或者3):')
+        if subject_no in ["1","3"]:
+            break
+        else:
+            print("请重新输入1或者3")
+            continue
+
+    return int(subject_no)
+
 
 def get_response_data(response):
     try:
@@ -131,6 +144,8 @@ def main():
 
     session = requests.session()
 
+    subject_no = get_input_subject()
+
     while True:
         user = get_user()
 
@@ -146,7 +161,7 @@ def main():
             print()
             break
 
-    unfinished = get_unfinished_list(session)
+    unfinished = get_unfinished_list(session, subject_no)
 
     print()
 
@@ -181,7 +196,7 @@ def get_user():
             user = USER
 
     while not (user and is_valid_username(user[0])):
-        username = input('请输入驾校帐号: ')
+        username = input('请输入驾校帐号(身份证或手机号): ')
         password = getpass.getpass('请输入密码: ')
         user = [username, password]
 
