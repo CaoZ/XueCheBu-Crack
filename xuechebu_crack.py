@@ -4,8 +4,9 @@ import sys
 import os
 
 import requests
+import hashlib
 
-USER = ['驾校帐号', '密码']
+USER = ['', '']
 USER_INFO_CORRECT = True
 
 
@@ -82,11 +83,15 @@ def get_should_chapter(session):
 
 
 def login(session, username, password):
-    url = 'http://api.xuechebu.com/user/stulogin'
+    url = 'https://api.xuechebu.com/usercenter/userinfo/login'
+
+    m = hashlib.md5()
+    m.update(password.encode('utf-8'))
 
     data = {
         'username': username,
-        'password': password,
+        'passwordmd5': m.hexdigest(),
+        'callback': 'tfrnghub',
         'os': 'pc'
     }
 
@@ -94,7 +99,7 @@ def login(session, username, password):
         r = session.post(url, data)
         data = get_response_data(r)
 
-        print('登录成功! 姓名: {}, 驾校: {}.'.format(data['xm'], data['jxmc']))
+        print('登录成功! 姓名: {}, 驾校: {}.'.format(data['XM'], data['JXMC']))
         return True
 
     except Exception as e:
